@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>증바람 도감</title>
+<meta name="description" content="증강 칼바람(무작위 총력전: 아수라장) __PATCH__ 패치 기준 챔피언별 추천 증강·아이템과 증강 196개 쉬운 설명">
+<meta property="og:title" content="증바람 도감">
+<meta property="og:description" content="챔피언별 추천 증강·아이템 + 증강 사전 (__PATCH__)">
+<meta name="theme-color" content="#2f6f9f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6f9f'/%3E%3Cpath d='M16 6l2.6 6.4L25 13l-5 4.3L21.6 24 16 20.4 10.4 24l1.6-6.7L7 13l6.4-.6z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap">
+<style>
+/* Layout: 상단 제목 + 탭(챔피언 도감 / 증강 사전) → 고정 검색바 → 카드 목록. 빙판색 바탕, 증강 등급(프리즘·골드·실버)을 색 체계로 사용 */
+:root{
+  --bg:#eef2f6; --surface:#ffffff; --ink:#18222e; --muted:#5b6a7a; --line:#d5dee8;
+  --ice:#2f6f9f; --ice-soft:#e1ecf5;
+  --prism:#7b4fd0; --prism-bg:#f0eafc; --gold:#a8730c; --gold-bg:#fbf1dc; --silver:#5c6b7a; --silver-bg:#eceff3;
+  --t-splus:#c2410c; --t-s:#b45309; --t-a:#2f6f9f; --t-b:#4b7b52; --t-c:#7a8592;
+  --good:#2e7d4f; --bad:#b4433a; --warn-bg:#fbeceb;
+  --font:'Nanum Gothic','나눔고딕','NanumGothic','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f161e; --surface:#16202b; --ink:#e4ebf2; --muted:#93a3b4; --line:#26333f;
+  --ice:#7cb6e2; --ice-soft:#1b2b3a;
+  --prism:#b99af2; --prism-bg:#272040; --gold:#e3b24f; --gold-bg:#2f2614; --silver:#b2bfcc; --silver-bg:#222c37;
+  --t-splus:#f08a5d; --t-s:#e8a94a; --t-a:#7cb6e2; --t-b:#8cc394; --t-c:#9aa6b2;
+  --good:#6cc68f; --bad:#e58a80; --warn-bg:#331d1b; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(20px + env(safe-area-inset-top,0px)) calc(48px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.6rem;font-weight:800;margin:0;letter-spacing:-.01em}
+header p{margin:.25rem 0 0;color:var(--muted);font-size:.88rem}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:.8rem;color:var(--muted)}
+.meta b{color:var(--ink)}
+.tabs{display:flex;gap:4px;margin-top:16px;border-bottom:2px solid var(--line)}
+.tab{font:inherit;font-size:1rem;font-weight:800;padding:10px 16px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ice)}
+.tab small{font-weight:400;font-size:.78rem;color:var(--muted);margin-left:4px}
+button:focus-visible,summary:focus-visible,.aug:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
+details.box{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+details.box summary{font-weight:800;cursor:pointer}
+.box h3{font-size:.92rem;margin:14px 0 6px}
+.box ul{margin:0;padding-left:1.1rem;display:grid;gap:5px;font-size:.88rem;max-width:68ch}
+.box .note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.vs{color:var(--bad);font-weight:700}
+dl.terms{display:grid;grid-template-columns:150px 1fr;gap:8px 16px;margin:14px 0 4px;font-size:.88rem}
+dl.terms dt{font-weight:800} dl.terms dd{margin:0;max-width:62ch}
+ul.removed{list-style:none;padding:0;margin-top:12px}
+.removed li{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+.removed s{font-weight:700;color:var(--muted)}
+.flag{font-size:.74rem;font-weight:700;color:var(--bad);background:var(--warn-bg);padding:1px 7px;border-radius:5px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;margin-top:14px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.search{display:flex;gap:8px}
+.search input{flex:1;min-width:0;font:inherit;font-size:1rem;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+.search input:focus{outline:none;border-color:var(--ice)}
+.search select{font:inherit;padding:0 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.84rem;font-weight:700;padding:5px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ice);border-color:var(--ice);color:var(--surface)}
+.count{font-size:.8rem;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;color:var(--muted);margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+.list{display:grid;gap:10px;margin-top:14px}
+.empty{padding:32px 16px;text-align:center;color:var(--muted)}
+.tier{font-weight:800;font-size:.76rem;padding:0 7px;border-radius:6px;border:1.5px solid currentColor}
+.t-Sp{color:var(--t-splus)} .t-S{color:var(--t-s)} .t-A{color:var(--t-a)} .t-B{color:var(--t-b)} .t-C{color:var(--t-c)}
+/* 챔피언 카드 */
+.ccard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:150px 1fr;gap:6px 18px}
+.head{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cname{font-size:1.12rem;font-weight:800;line-height:1.25}
+.sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.wr{font-variant-numeric:tabular-nums;font-weight:700}
+.wr.hi{color:var(--good)} .wr.lo{color:var(--bad)}
+.body{display:grid;gap:8px;min-width:0}
+.row{display:grid;grid-template-columns:54px 1fr;gap:8px;align-items:baseline}
+.lab{font-size:.74rem;font-weight:700;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+.aug{font:inherit;font-size:.84rem;font-weight:700;padding:3px 9px;border-radius:6px;border:0;cursor:pointer;text-align:left}
+.aug.p{background:var(--prism-bg);color:var(--prism)} .aug.g{background:var(--gold-bg);color:var(--gold)} .aug.s{background:var(--silver-bg);color:var(--silver)}
+.aug.alt{opacity:.75;font-weight:400}
+.tip{grid-column:1/-1;font-size:.86rem;background:var(--ice-soft);border-radius:8px;padding:8px 12px;display:grid;gap:4px}
+.tip b{font-weight:800}
+.tip .go{font:inherit;font-size:.78rem;color:var(--ice);background:none;border:0;padding:0;cursor:pointer;justify-self:start;font-weight:700}
+.items{font-size:.88rem;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline}
+.items .arrow{color:var(--muted);font-size:.75rem} .items .boots{color:var(--muted)}
+.more,.src{font:inherit;font-size:.76rem;color:var(--ice);background:none;border:0;padding:0;cursor:pointer;justify-self:start}
+/* 증강 카드 */
+.acard{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:14px 16px;display:grid;gap:8px;scroll-margin-top:190px}
+.acard.p{--c:var(--prism)} .acard.g{--c:var(--gold)} .acard.s{--c:var(--silver)}
+.acard.hl{box-shadow:0 0 0 3px var(--ice)}
+.top{display:flex;align-items:baseline;gap:8px 10px;flex-wrap:wrap}
+.aname{font-size:1.1rem;font-weight:800}
+.grade{font-size:.76rem;font-weight:800;padding:1px 8px;border-radius:6px}
+.grade.p{background:var(--prism-bg);color:var(--prism)} .grade.g{background:var(--gold-bg);color:var(--gold)} .grade.s{background:var(--silver-bg);color:var(--silver)}
+.pick{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto}
+.easy{margin:0;font-size:.96rem;max-width:66ch}
+.arow{display:grid;grid-template-columns:110px 1fr;gap:8px;font-size:.86rem;align-items:baseline}
+.champs{display:flex;flex-wrap:wrap;gap:4px}
+.champs span{background:var(--ice-soft);padding:1px 8px;border-radius:5px;font-size:.82rem}
+.orig{font-size:.82rem;color:var(--muted);margin:0;max-width:66ch}
+.news summary .newest{font-weight:400;font-size:.8rem;color:var(--muted);margin-left:6px}
+.chg{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+.chg:first-child{border-top:0;margin-top:8px;padding-top:0}
+.chg h4{margin:0 0 4px;font-size:.92rem}
+.chg h4 span{font-weight:400;color:var(--muted);font-size:.8rem;margin-left:6px}
+.chg ul{margin:0;padding-left:1.1rem;font-size:.86rem;display:grid;gap:3px;max-width:68ch}
+.up{color:var(--good);font-weight:700}.down{color:var(--bad);font-weight:700}
+footer{margin-top:24px;font-size:.78rem;color:var(--muted);display:grid;gap:4px}
+footer a{color:var(--ice)}
+@media (max-width:640px){
+  .ccard{grid-template-columns:1fr;padding:12px 14px}
+  .head{flex-direction:row;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+  .row{grid-template-columns:44px 1fr}
+  .arow{grid-template-columns:1fr;gap:2px}
+  .pick{margin-left:0;width:100%}
+  dl.terms{grid-template-columns:1fr;gap:2px 0} dl.terms dd{margin-bottom:8px}
+  .tab{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>증바람 도감</h1>
+    <p>무작위 총력전: 아수라장 · 챔피언별 추천 증강·아이템과 증강 쉬운 설명</p>
+    <div class="meta"><span>기준 패치 <b>__PATCH__</b></span><span>수집일 <b>__DATE__</b></span><span>챔피언 <b id="ctotal"></b>개 · 증강 <b id="atotal"></b>개</span></div>
+  </header>
+
+  <details class="box news" id="news">
+    <summary>업데이트 소식 <span class="newest" id="newest"></span></summary>
+    <div id="changes"></div>
+  </details>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-champ" data-v="champ" aria-selected="true">챔피언 도감</button>
+    <button class="tab" role="tab" id="tab-aug" data-v="aug" aria-selected="false">증강 사전</button>
+  </nav>
+
+  <!-- ============ 챔피언 도감 ============ -->
+  <section id="v-champ" role="tabpanel">
+    <details class="box">
+      <summary>먼저 읽기 · 커뮤니티 팁과 통계가 엇갈리는 부분</summary>
+      <h3>증강 고르는 순서</h3>
+      <ul>
+        <li>내 챔피언 유형(물리·마법 딜러, 탱커, 서포터)을 먼저 정하고, 그 방향(공속·주문력·체력)에 맞는 증강을 고릅니다.</li>
+        <li>S급 증강만 기다리지 말고, 지금 조합과 상대에 맞는 증강을 고르는 편이 낫다는 의견이 많습니다.</li>
+        <li>증바람은 증강에 따라 아이템을 바꿔야 합니다. 아래 아이템은 출발점으로 보고, 증강 이름에 아이템이 들어 있으면(예: 무한의 대검 업그레이드) 그 아이템을 먼저 올립니다.</li>
+      </ul>
+      <h3>원거리 딜러</h3>
+      <ul>
+        <li>탭 댄서를 얻었다면 루난의 허리케인을 1코어로 올리면 효과가 두 번 적용된다는 팁이 있습니다.</li>
+        <li><span class="vs">상충</span> 커뮤니티 일부는 미스 포츈·그레이브즈·진·사미라 외에는 징수의 총 선코어를 권하지 않지만, 통계 추천 빌드는 다수 원딜이 징수의 총을 1코어로 둡니다.</li>
+      </ul>
+      <h3>마법사 · 탱커</h3>
+      <ul>
+        <li>마나 아이템을 2개 이상 사는 것은 지양하라는 의견이 있습니다. 마나 관련 증강을 얻었다면 영겁의 지팡이·대천사의 지팡이를 1코어로 고려합니다.</li>
+        <li><span class="vs">상충</span> 탱커 2코어로 워모그 대신 정령의 형상·끝없는 절망을 권하는 의견이 있으나, 통계 추천 빌드에는 워모그가 자주 들어갑니다.</li>
+      </ul>
+      <p class="note">커뮤니티 글은 2025년 12월~2026년 4월 작성분으로, 26.12 대규모 개편 이전 내용이 섞여 있습니다.</p>
+    </details>
+
+    <div class="bar">
+      <div class="search">
+        <input id="cq" type="search" placeholder="챔피언 이름 또는 초성 (예: 이즈, ㅇㅈㄹ)" autocomplete="off" aria-label="챔피언 검색">
+        <select id="csort" aria-label="정렬"><option value="tier">티어순</option><option value="name">가나다순</option><option value="wr">승률순</option></select>
+      </div>
+      <div class="chips" id="roles"></div>
+      <div class="chips" id="ctiers"></div>
+      <div class="count" id="ccount"></div>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--prism)"></i>프리즘</span>
+      <span><i class="dot" style="background:var(--gold)"></i>골드</span>
+      <span><i class="dot" style="background:var(--silver)"></i>실버</span>
+      <span>증강을 누르면 쉬운 설명</span>
+      <span>승률 <b style="color:var(--good)">52% 이상</b> / <b style="color:var(--bad)">48% 미만</b></span>
+    </div>
+    <div class="list" id="clist"></div>
+  </section>
+
+  <!-- ============ 증강 사전 ============ -->
+  <section id="v-aug" role="tabpanel" hidden>
+    <details class="box">
+      <summary>설명에 자주 나오는 용어 풀이</summary>
+      <dl class="terms">
+        <dt>스킬 가속</dt><dd>쿨타임을 줄이는 수치입니다. 가속 100이면 쿨타임이 절반, 60이면 약 37% 줄어듭니다.</dd>
+        <dt>적응형 능력치</dt><dd>공격력과 주문력 중 내가 더 많이 가진 쪽으로 자동으로 들어가는 능력치입니다.</dd>
+        <dt>적중 시 효과</dt><dd>기본 공격이 맞을 때 터지는 추가 효과입니다. 몰락한 왕의 검, 구인수의 격노검, 크라켄 학살자 등이 해당합니다.</dd>
+        <dt>처치 관여</dt><dd>킬 또는 어시스트를 말합니다.</dd>
+        <dt>행동 불가·지면 속박</dt><dd>기절·속박·에어본·도발 같은 군중 제어(CC)입니다. 지면 속박은 이동기만 막는 효과입니다.</dd>
+        <dt>고정 피해</dt><dd>방어력·마법 저항력을 무시하고 그대로 들어가는 피해입니다.</dd>
+        <dt>모든 피해 흡혈</dt><dd>원문의 '전능 흡혈'. 평타뿐 아니라 스킬 피해로도 체력을 회복합니다.</dd>
+        <dt>관통력</dt><dd>상대의 방어력·마법 저항력을 일부 무시하는 수치입니다.</dd>
+        <dt>능력치 모루</dt><dd>열면 능력치 몇 가지 중 하나를 골라 영구히 얻는 상자입니다. 골드·프리즘 모루일수록 좋은 능력치가 나옵니다.</dd>
+        <dt>표식(눈덩이)</dt><dd>칼바람 전용 소환사 주문입니다. 증강에 따라 강화되며, 없으면 점멸 외 주문 칸이 표식으로 바뀌기도 합니다.</dd>
+        <dt>정신 집중(채널링)</dt><dd>스킬을 쓰는 동안 움직이지 못하고 시전을 유지하는 상태입니다(누누 궁, 피들스틱 W 등).</dd>
+        <dt>퀘스트 증강</dt><dd>조건(처치 횟수, 아이템 구매 등)을 채워야 보상이 열리는 증강입니다.</dd>
+        <dt>200/100 표기</dt><dd>앞 숫자는 근접 챔피언, 뒤 숫자는 원거리 챔피언에게 적용되는 값입니다.</dd>
+        <dt>선택한 스킬</dt><dd>증강마다 내 챔피언의 특정 스킬 하나가 대상으로 정해지는 증강입니다(어느 스킬인지는 챔피언마다 다름).</dd>
+      </dl>
+    </details>
+    <details class="box">
+      <summary>최근 삭제된 증강 (예전 공략에 나오면 무시)</summary>
+      <ul class="removed" id="removed"></ul>
+    </details>
+
+    <div class="bar">
+      <div class="search">
+        <input id="aq" type="search" placeholder="증강 이름·초성·효과로 검색 (예: 유레카, ㅂㅅㄱ, 보호막)" autocomplete="off" aria-label="증강 검색">
+        <select id="asort" aria-label="정렬"><option value="tier">티어순</option><option value="name">가나다순</option><option value="pick">선택률순</option></select>
+      </div>
+      <div class="chips" id="grades"></div>
+      <div class="chips" id="atiers"></div>
+      <div class="count" id="acount"></div>
+    </div>
+    <div class="list" id="alist"></div>
+  </section>
+
+  <footer>
+    <div>통계(티어·승률·증강·아이템·선택률): <a href="https://arammayhem.com/ko-kr/tier-list/" target="_blank" rel="noopener">arammayhem.com</a> __PATCH__ · 교차 확인: <a href="https://www.nerfplz.com/lol-aram-mayhem/tier-list/" target="_blank" rel="noopener">Nerfplz</a></div>
+    <div>커뮤니티 팁: <a href="https://arca.live/b/leagueoflegends/157466500" target="_blank" rel="noopener">아카라이브</a> · <a href="https://www.dogdrip.net/715140100" target="_blank" rel="noopener">개드립</a> · <a href="https://beforeforget.co.kr/462" target="_blank" rel="noopener">증강 티어 가이드</a></div>
+    <div>삭제된 증강(광대 대학·타오르는 이자·위력 추구·선동)은 챔피언 추천에서 제외했습니다. 쉬운 설명은 원문을 풀어쓴 것으로, 정확한 수치는 '원문 요약'을 확인하세요.</div>
+  </footer>
+</div>
+
+<script>
+const CHAMPS=/*__DATA__*/[];
+const AUG=/*__AUG__*/[];
+const REMOVED=/*__REMOVED__*/[];
+const CHANGES=/*__CHANGES__*/[];
+const AMAP=Object.fromEntries(AUG.map(a=>[a.n,a]));
+const CHO="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+const cho=s=>[...s].map(c=>{const k=c.charCodeAt(0)-0xAC00;return k>=0&&k<11172?CHO[Math.floor(k/588)]:c}).join('');
+const norm=s=>s.replace(/\s/g,'').toLowerCase();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=id=>document.getElementById(id);
+const load=(k,d)=>{try{return {...d,...(JSON.parse(localStorage.getItem(k)||'null')||{})}}catch(e){return d}};
+const store=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+function chips(el,list,st,k,after){
+  el.innerHTML=list.map(v=>`<button class="chip" type="button" data-v="${v}" aria-pressed="${st[k]===v}">${v}</button>`).join('');
+  el.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;st[k]=b.dataset.v;chips(el,list,st,k,after);after()};
+}
+const GCLS={"프리즘":"p","골드":"g","실버":"s"};
+const tierBase=t=>!t||t==="-"?"C":t.startsWith("S+")?"S+":t[0]==="D"?"C":t[0];
+const tcls=t=>{const b=tierBase(t);return b==="S+"?"t-Sp":"t-"+b};
+
+/* ---------- 탭 ---------- */
+function showTab(v){
+  ["champ","aug"].forEach(x=>{$("v-"+x).hidden=x!==v;$("tab-"+x).setAttribute("aria-selected",String(x===v))});
+  if(location.hash!=="#"+v)history.replaceState(null,"","#"+v);
+}
+document.querySelector('.tabs').onclick=e=>{const b=e.target.closest('.tab');if(b){showTab(b.dataset.v);window.scrollTo({top:0})}};
+
+/* ---------- 챔피언 도감 ---------- */
+const ROLES=["전체","원딜","마법사","암살자","전사","탱커","서포터"];
+const CTIERS=["전체","S+","S","A","B","C"];
+const CORD={"S+":0,"S":1,"A":2,"B":3,"C":4};
+CHAMPS.forEach(d=>{d.key=norm(d.n);d.ck=cho(d.key)});
+const cs=load('aram-c',{role:"전체",tier:"전체",sort:"tier"});cs.q="";
+const csave=()=>store('aram-c',{role:cs.role,tier:cs.tier,sort:cs.sort});
+function augBtn(n,cls,alt){return `<button type="button" class="aug ${cls}${alt?' alt':''}" data-n="${esc(n)}">${esc(n)}</button>`}
+function ccard(d){
+  const wc=d.w>=52?"hi":d.w<48?"lo":"";
+  const main=[...d.p.slice(0,2).map(a=>augBtn(a,'p')),...d.g.slice(0,2).map(a=>augBtn(a,'g')),...d.s.slice(0,1).map(a=>augBtn(a,'s'))].join('');
+  const alt=[...d.p.slice(2).map(a=>augBtn(a,'p',1)),...d.g.slice(2).map(a=>augBtn(a,'g',1)),...d.s.slice(1).map(a=>augBtn(a,'s',1))].join('');
+  const items=d.i.map(esc).join('<span class="arrow">›</span>')+`<span class="arrow">+</span><span class="boots">${esc(d.b)}</span>`;
+  return `<article class="ccard">
+   <div class="head"><div class="cname">${esc(d.n)}</div><div class="sub"><span class="tier ${tcls(d.t)}">${d.t}</span><span>${d.r}</span><span class="wr ${wc}">${d.w.toFixed(2)}%</span></div></div>
+   <div class="body">
+    <div class="row"><span class="lab">증강</span><div class="tags">${main}</div></div>
+    ${alt?`<div class="row" hidden data-alt><span class="lab">대안</span><div class="tags">${alt}</div></div>`:''}
+    <div class="tip" hidden></div>
+    <div class="row"><span class="lab">아이템</span><div class="items">${items}</div></div>
+    ${alt?'<button class="more" type="button" aria-expanded="false">대안 증강 보기</button>':''}
+   </div></article>`;
+}
+function crender(){
+  const q=norm(cs.q);
+  let r=CHAMPS.filter(d=>(cs.role==="전체"||d.r===cs.role)&&(cs.tier==="전체"||d.t===cs.tier)&&(!q||d.key.includes(q)||d.ck.includes(q)));
+  r.sort(cs.sort==="name"?(a,b)=>a.n.localeCompare(b.n,'ko'):cs.sort==="wr"?(a,b)=>b.w-a.w:(a,b)=>CORD[a.t]-CORD[b.t]||b.w-a.w);
+  $('ccount').textContent=`${r.length}개 표시 중`;
+  $('clist').innerHTML=r.length?r.map(ccard).join(''):`<div class="empty">"${esc(cs.q)}"에 맞는 챔피언이 없습니다. 이름 일부나 초성으로 다시 검색해 보세요.</div>`;
+}
+$('clist').addEventListener('click',e=>{
+  const m=e.target.closest('.more');
+  if(m){const alt=m.parentElement.querySelector('[data-alt]');alt.hidden=!alt.hidden;m.textContent=alt.hidden?'대안 증강 보기':'대안 증강 접기';m.setAttribute('aria-expanded',String(!alt.hidden));return}
+  const go=e.target.closest('.go');
+  if(go){openAug(go.dataset.n);return}
+  const b=e.target.closest('.aug');
+  if(b){
+    const tip=b.closest('.body').querySelector('.tip');const a=AMAP[b.dataset.n];
+    if(!tip.hidden&&tip.dataset.n===b.dataset.n){tip.hidden=true;return}
+    tip.dataset.n=b.dataset.n;
+    tip.innerHTML=a?`<div><b>${esc(a.n)}</b> · ${esc(a.e)}</div><button class="go" type="button" data-n="${esc(a.n)}">증강 사전에서 자세히 보기 ›</button>`:`<div><b>${esc(b.dataset.n)}</b></div>`;
+    tip.hidden=false;
+  }
+});
+$('cq').addEventListener('input',e=>{cs.q=e.target.value;crender()});
+$('csort').value=cs.sort;$('csort').onchange=e=>{cs.sort=e.target.value;csave();crender()};
+chips($('roles'),ROLES,cs,'role',()=>{csave();crender()});
+chips($('ctiers'),CTIERS,cs,'tier',()=>{csave();crender()});
+
+/* ---------- 증강 사전 ---------- */
+const GRADES=["전체","프리즘","골드","실버"];
+const ATIERS=["전체","S+","S","A","B","C·D"];
+const AORD={"S+":0,"S":1,"S-":2,"A+":3,"A":4,"A-":5,"B+":6,"B":7,"B-":8,"C":9,"D":10,"-":11};
+AUG.forEach(a=>{a.key=norm(a.n);a.ck=cho(a.key);a.full=norm(a.n+a.e+a.f+a.d+a.c.join(''))});
+const as=load('aram-a',{grade:"전체",tier:"전체",sort:"tier"});as.q="";
+const asave=()=>store('aram-a',{grade:as.grade,tier:as.tier,sort:as.sort});
+function acard(a){
+  const g=GCLS[a.g]||"s";
+  const tierTag=a.t==="-"?`<span class="flag">통계 목록 외</span>`:`<span class="tier ${tcls(a.t)}">${esc(a.t)}</span>`;
+  const soon=a.n==="탄환 세례"?` <span class="flag">26.21 삭제 예정</span>`:"";
+  const pick=a.p?`<span class="pick">선택률 ${a.p.toFixed(2)}%</span>`:"";
+  return `<article class="acard ${g}" id="aug-${a.i}">
+    <div class="top"><span class="aname">${esc(a.n)}</span><span class="grade ${g}">${esc(a.g)}</span>${tierTag}${soon}${pick}</div>
+    <p class="easy">${esc(a.e)}</p>
+    <div class="arow"><span class="lab">이런 챔피언에게</span><span>${esc(a.f)}</span></div>
+    <div class="arow"><span class="lab">많이 고르는 챔피언</span><div class="champs">${a.c.map(c=>`<span>${esc(c)}</span>`).join('')}</div></div>
+    <button class="src" type="button" aria-expanded="false">원문 요약 보기</button>
+    <p class="orig" hidden>${esc(a.d)}</p>
+  </article>`;
+}
+function arender(){
+  const q=norm(as.q);
+  let r=AUG.filter(a=>(as.grade==="전체"||a.g===as.grade)&&(as.tier==="전체"||(as.tier==="C·D"?tierBase(a.t)==="C":tierBase(a.t)===as.tier))&&(!q||a.key.includes(q)||a.ck.includes(q)||a.full.includes(q)));
+  r.sort(as.sort==="name"?(x,y)=>x.n.localeCompare(y.n,'ko'):as.sort==="pick"?(x,y)=>y.p-x.p:(x,y)=>AORD[x.t]-AORD[y.t]||y.p-x.p);
+  $('acount').textContent=`${r.length}개 표시 중`;
+  $('alist').innerHTML=r.length?r.map(acard).join(''):`<div class="empty">"${esc(as.q)}"에 맞는 증강이 없습니다. 이름 일부, 초성, 또는 '보호막'·'쿨타임' 같은 효과 단어로 검색해 보세요.</div>`;
+}
+$('alist').addEventListener('click',e=>{
+  const b=e.target.closest('.src');if(!b)return;const p=b.nextElementSibling;p.hidden=!p.hidden;
+  b.textContent=p.hidden?'원문 요약 보기':'원문 요약 접기';b.setAttribute('aria-expanded',String(!p.hidden));
+});
+function openAug(n){
+  as.q=n;as.grade="전체";as.tier="전체";$('aq').value=n;
+  chips($('grades'),GRADES,as,'grade',()=>{asave();arender()});chips($('atiers'),ATIERS,as,'tier',()=>{asave();arender()});
+  arender();showTab('aug');
+  const a=AMAP[n];const el=a&&$('aug-'+a.i);
+  if(el){el.classList.add('hl');const o=el.querySelector('.src');o.click();el.scrollIntoView({block:'start'});setTimeout(()=>el.classList.remove('hl'),2000)}
+}
+$('aq').addEventListener('input',e=>{as.q=e.target.value;arender()});
+$('asort').value=as.sort;$('asort').onchange=e=>{as.sort=e.target.value;asave();arender()};
+chips($('grades'),GRADES,as,'grade',()=>{asave();arender()});
+chips($('atiers'),ATIERS,as,'tier',()=>{asave();arender()});
+$('removed').innerHTML=REMOVED.map(r=>`<li><s>${esc(r.n)}</s><span class="flag">${esc(r.v)} 패치 삭제</span><span>${esc(r.g)} · ${esc(r.d)}</span></li>`).join('');
+
+const tagify=s=>esc(s).replace(/^\[상향\]/,'<span class="up">[상향]</span>').replace(/^\[하향\]/,'<span class="down">[하향]</span>');
+$('changes').innerHTML=CHANGES.map(c=>`<div class="chg"><h4>${esc(c.title)}<span>${esc(c.date)} · ${esc(c.patch)} 패치</span></h4><ul>${c.items.map(i=>`<li>${tagify(i)}</li>`).join('')}</ul></div>`).join('');
+if(CHANGES[0])$('newest').textContent=`${CHANGES[0].date} · ${CHANGES[0].title}`;
+$('ctotal').textContent=CHAMPS.length;$('atotal').textContent=AUG.length;
+crender();arender();
+showTab(location.hash==="#aug"?"aug":"champ");
+window.addEventListener('hashchange',()=>showTab(location.hash==="#aug"?"aug":"champ"));
+</script>
+</body>
+</html>
