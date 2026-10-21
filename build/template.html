@@ -8,6 +8,12 @@
 <meta property="og:title" content="증바람 도감">
 <meta property="og:description" content="챔피언별 추천 증강·아이템 + 증강 사전 (__PATCH__)">
 <meta name="theme-color" content="#2f6f9f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="증바람 도감">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6f9f'/%3E%3Cpath d='M16 6l2.6 6.4L25 13l-5 4.3L21.6 24 16 20.4 10.4 24l1.6-6.7L7 13l6.4-.6z' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +36,7 @@
   --t-splus:#f08a5d; --t-s:#e8a94a; --t-a:#7cb6e2; --t-b:#8cc394; --t-c:#9aa6b2;
   --good:#6cc68f; --bad:#e58a80; --warn-bg:#331d1b; color-scheme:dark}}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
@@ -112,6 +119,11 @@ ul.removed{list-style:none;padding:0;margin-top:12px}
 .chg h4 span{font-weight:400;color:var(--muted);font-size:.8rem;margin-left:6px}
 .chg ul{margin:0;padding-left:1.1rem;font-size:.86rem;display:grid;gap:3px;max-width:68ch}
 .up{color:var(--good);font-weight:700}.down{color:var(--bad);font-weight:700}
+.install{display:flex;gap:10px;align-items:flex-start;margin-top:14px;background:var(--ice-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.86rem}
+.install p{margin:0;flex:1;min-width:0}
+.install b{font-weight:800}
+.install .x{font:inherit;background:none;border:0;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:0 4px;line-height:1}
+.share{display:inline-block;vertical-align:-3px;width:15px;height:17px}
 footer{margin-top:24px;font-size:.78rem;color:var(--muted);display:grid;gap:4px}
 footer a{color:var(--ice)}
 @media (max-width:640px){
@@ -132,6 +144,11 @@ footer a{color:var(--ice)}
     <p>무작위 총력전: 아수라장 · 챔피언별 추천 증강·아이템과 증강 쉬운 설명</p>
     <div class="meta"><span>기준 패치 <b>__PATCH__</b></span><span>수집일 <b>__DATE__</b></span><span>챔피언 <b id="ctotal"></b>개 · 증강 <b id="atotal"></b>개</span></div>
   </header>
+
+  <div class="install" id="install" hidden>
+    <p><b>앱처럼 쓰기</b> · 사파리 아래쪽 <svg class="share" viewBox="0 0 15 17" aria-label="공유" role="img"><path d="M7.5 1v10M4 4.5 7.5 1 11 4.5M2.5 8v7.5h10V8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg> 공유 버튼 → <b>홈 화면에 추가</b>를 누르면 아이콘이 생기고 전체 화면으로 열립니다.</p>
+    <button class="x" type="button" id="install-x" aria-label="안내 닫기">✕</button>
+  </div>
 
   <details class="box news" id="news">
     <summary>업데이트 소식 <span class="newest" id="newest"></span></summary>
@@ -168,7 +185,7 @@ footer a{color:var(--ice)}
 
     <div class="bar">
       <div class="search">
-        <input id="cq" type="search" placeholder="챔피언 이름 또는 초성 (예: 이즈, ㅇㅈㄹ)" autocomplete="off" aria-label="챔피언 검색">
+        <input id="cq" type="search" placeholder="챔피언 이름·초성 검색" autocomplete="off" aria-label="챔피언 검색">
         <select id="csort" aria-label="정렬"><option value="tier">티어순</option><option value="name">가나다순</option><option value="wr">승률순</option></select>
       </div>
       <div class="chips" id="roles"></div>
@@ -213,7 +230,7 @@ footer a{color:var(--ice)}
 
     <div class="bar">
       <div class="search">
-        <input id="aq" type="search" placeholder="증강 이름·초성·효과로 검색 (예: 유레카, ㅂㅅㄱ, 보호막)" autocomplete="off" aria-label="증강 검색">
+        <input id="aq" type="search" placeholder="증강 이름·초성·효과 검색" autocomplete="off" aria-label="증강 검색">
         <select id="asort" aria-label="정렬"><option value="tier">티어순</option><option value="name">가나다순</option><option value="pick">선택률순</option></select>
       </div>
       <div class="chips" id="grades"></div>
@@ -355,6 +372,11 @@ $('removed').innerHTML=REMOVED.map(r=>`<li><s>${esc(r.n)}</s><span class="flag">
 const tagify=s=>esc(s).replace(/^\[상향\]/,'<span class="up">[상향]</span>').replace(/^\[하향\]/,'<span class="down">[하향]</span>');
 $('changes').innerHTML=CHANGES.map(c=>`<div class="chg"><h4>${esc(c.title)}<span>${esc(c.date)} · ${esc(c.patch)} 패치</span></h4><ul>${c.items.map(i=>`<li>${tagify(i)}</li>`).join('')}</ul></div>`).join('');
 if(CHANGES[0])$('newest').textContent=`${CHANGES[0].date} · ${CHANGES[0].title}`;
+(()=>{const standalone=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+ const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);let off=false;try{off=localStorage.getItem('aram-install-x')==='1'}catch(e){}
+ if(ios&&!standalone&&!off)$('install').hidden=false;
+ $('install-x').onclick=()=>{$('install').hidden=true;try{localStorage.setItem('aram-install-x','1')}catch(e){}};
+ if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});})();
 $('ctotal').textContent=CHAMPS.length;$('atotal').textContent=AUG.length;
 crender();arender();
 showTab(location.hash==="#aug"?"aug":"champ");
