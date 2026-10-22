@@ -36,9 +36,10 @@ for r in rows:
         if a not in names: warn.append(f'사전에 없는 증강: {a} ({r["n"]})')
 m=json.load(open(p('meta.json'),encoding='utf-8'))
 ch=json.load(open(p('changes.json'),encoding='utf-8'))
+bal=json.load(open(p('balance.json'),encoding='utf-8')) if os.path.exists(p('balance.json')) else {}
 j=lambda o:json.dumps(o,ensure_ascii=False,separators=(',',':'))
 h=open(p('template.html'),encoding='utf-8').read()
-for k,v in {'/*__DATA__*/[]':j(rows),'/*__AUG__*/[]':j(aug),'/*__REMOVED__*/[]':j(removed),'/*__CHANGES__*/[]':j(ch),'__PATCH__':m['patch'],'__DATE__':m['collected']}.items():
+for k,v in {'/*__DATA__*/[]':j(rows),'/*__AUG__*/[]':j(aug),'/*__REMOVED__*/[]':j(removed),'/*__CHANGES__*/[]':j(ch),'/*__BAL__*/{}':j(bal),'__STATS__':m.get('stats',m['patch']),'__PATCH__':m['patch'],'__DATE__':m['collected']}.items():
     h=h.replace(k,v)
 open(os.path.join(R,'index.html'),'w',encoding='utf-8').write(h)
 print(f'챔피언 {len(rows)} · 증강 {len(aug)} · 경고 {len(warn)}')

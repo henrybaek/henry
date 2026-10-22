@@ -61,6 +61,12 @@ dl.terms dt{font-weight:800} dl.terms dd{margin:0;max-width:62ch}
 ul.removed{list-style:none;padding:0;margin-top:12px}
 .removed li{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
 .removed s{font-weight:700;color:var(--muted)}
+.newtag{font-size:.74rem;font-weight:800;color:var(--surface);background:var(--ice);padding:1px 8px;border-radius:5px}
+.bal{font:inherit;font-size:.72rem;font-weight:800;padding:0 7px;border-radius:5px;border:0;cursor:pointer}
+.bal.up{background:var(--good);color:var(--surface)}.bal.down{background:var(--bad);color:var(--surface)}.bal.mid{background:var(--muted);color:var(--surface)}
+.hl-grid{display:grid;grid-template-columns:130px 1fr;gap:6px 14px;margin:12px 0 4px;font-size:.88rem}
+.hl-grid dt{font-weight:800}.hl-grid dd{margin:0}
+@media (max-width:600px){.hl-grid{grid-template-columns:1fr;gap:0}.hl-grid dd{margin-bottom:6px}}
 .flag{font-size:.74rem;font-weight:700;color:var(--bad);background:var(--warn-bg);padding:1px 7px;border-radius:5px}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;margin-top:14px;border-bottom:1px solid var(--line);display:grid;gap:10px}
 .search{display:flex;gap:8px}
@@ -142,7 +148,7 @@ footer a{color:var(--ice)}
   <header>
     <h1>증바람 도감</h1>
     <p>무작위 총력전: 아수라장 · 챔피언별 추천 증강·아이템과 증강 쉬운 설명</p>
-    <div class="meta"><span>기준 패치 <b>__PATCH__</b></span><span>수집일 <b>__DATE__</b></span><span>챔피언 <b id="ctotal"></b>개 · 증강 <b id="atotal"></b>개</span></div>
+    <div class="meta"><span>게임 패치 <b>__PATCH__</b></span><span>통계 기준 <b>__STATS__</b></span><span>갱신일 <b>__DATE__</b></span><span>챔피언 <b id="ctotal"></b>개 · 증강 <b id="atotal"></b>개</span></div>
   </header>
 
   <div class="install" id="install" hidden>
@@ -205,6 +211,21 @@ footer a{color:var(--ice)}
   <!-- ============ 증강 사전 ============ -->
   <section id="v-aug" role="tabpanel" hidden>
     <details class="box">
+      <summary>헤드라이너(밴드) · 26.21 신규 규칙</summary>
+      <p class="note" style="margin-top:10px">26.21부터 게임마다 밴드 하나가 '헤드라이너'로 붙어 규칙이 바뀝니다. 로딩 화면에서 이번 판의 밴드를 확인하세요.</p>
+      <dl class="hl-grid">
+        <dt>K/DA</dt><dd>K/DA 카드 4장을 모으면 증강을 하나 더 받습니다.</dd>
+        <dt>HEARTSTEEL</dt><dd>증강에 고유 추가 효과가 붙어 더 강해질 수 있습니다.</dd>
+        <dt>True Damage</dt><dd>킬·어시스트나 포탑 파괴 때 팀이 주울 수 있는 능력치 모루가 떨어집니다.</dd>
+        <dt>펜타킬</dt><dd>게임 시작 때와 18레벨 때 스킬 하나가 강화됩니다.</dd>
+        <dt>디스코</dt><dd>디스코 볼 아래에서 춤을 추면 모두에게 골드가 들어옵니다.</dd>
+        <dt>귀염둥이 카페</dt><dd>체력 회복 유물(포션)이 특히 강해집니다. 회복 싸움이 길어집니다.</dd>
+        <dt>꿀벌</dt><dd>맵을 가로지르는 꿀벌을 피하면서 꿀단지를 모읍니다.</dd>
+        <dt>커맨드 라인</dt><dd>증강을 고를 때마다 하나를 상위 등급으로 새로고침할 수 있습니다.</dd>
+      </dl>
+      <p class="note">그 밖의 변경: 밴드 미션을 깨면 증강·감정표현·주황 정수 등을 주는 미션 시스템(슈퍼스타 등급)이 생겼고, 도살자의 다리·코에신 교차로 맵은 이번 패치 동안 아수라장에서 빠집니다.</p>
+    </details>
+    <details class="box">
       <summary>설명에 자주 나오는 용어 풀이</summary>
       <dl class="terms">
         <dt>스킬 가속</dt><dd>쿨타임을 줄이는 수치입니다. 가속 100이면 쿨타임이 절반, 60이면 약 37% 줄어듭니다.</dd>
@@ -252,6 +273,7 @@ const CHAMPS=/*__DATA__*/[];
 const AUG=/*__AUG__*/[];
 const REMOVED=/*__REMOVED__*/[];
 const CHANGES=/*__CHANGES__*/[];
+const BAL=/*__BAL__*/{};
 const AMAP=Object.fromEntries(AUG.map(a=>[a.n,a]));
 const CHO="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
 const cho=s=>[...s].map(c=>{const k=c.charCodeAt(0)-0xAC00;return k>=0&&k<11172?CHO[Math.floor(k/588)]:c}).join('');
@@ -289,7 +311,7 @@ function ccard(d){
   const alt=[...d.p.slice(2).map(a=>augBtn(a,'p',1)),...d.g.slice(2).map(a=>augBtn(a,'g',1)),...d.s.slice(1).map(a=>augBtn(a,'s',1))].join('');
   const items=d.i.map(esc).join('<span class="arrow">›</span>')+`<span class="arrow">+</span><span class="boots">${esc(d.b)}</span>`;
   return `<article class="ccard">
-   <div class="head"><div class="cname">${esc(d.n)}</div><div class="sub"><span class="tier ${tcls(d.t)}">${d.t}</span><span>${d.r}</span><span class="wr ${wc}">${d.w.toFixed(2)}%</span></div></div>
+   <div class="head"><div class="cname">${esc(d.n)}</div><div class="sub"><span class="tier ${tcls(d.t)}">${d.t}</span><span>${d.r}</span><span class="wr ${wc}">${d.w.toFixed(2)}%</span>${BAL[d.id]?`<button type="button" class="bal ${BAL[d.id][0]==='상향'?'up':BAL[d.id][0]==='하향'?'down':'mid'}" data-b="${esc(d.id)}">__PATCH__ ${BAL[d.id][0]}</button>`:''}</div></div>
    <div class="body">
     <div class="row"><span class="lab">증강</span><div class="tags">${main}</div></div>
     ${alt?`<div class="row" hidden data-alt><span class="lab">대안</span><div class="tags">${alt}</div></div>`:''}
@@ -308,6 +330,8 @@ function crender(){
 $('clist').addEventListener('click',e=>{
   const m=e.target.closest('.more');
   if(m){const alt=m.parentElement.querySelector('[data-alt]');alt.hidden=!alt.hidden;m.textContent=alt.hidden?'대안 증강 보기':'대안 증강 접기';m.setAttribute('aria-expanded',String(!alt.hidden));return}
+  const bb=e.target.closest('.bal');
+  if(bb){const tip=bb.closest('.ccard').querySelector('.tip');const v=BAL[bb.dataset.b];if(!tip.hidden&&tip.dataset.n==='bal'){tip.hidden=true;return}tip.dataset.n='bal';tip.innerHTML=`<div><b>__PATCH__ 패치 ${esc(v[0])}</b> · ${esc(v[1])}</div>`;tip.hidden=false;return}
   const go=e.target.closest('.go');
   if(go){openAug(go.dataset.n);return}
   const b=e.target.closest('.aug');
@@ -326,18 +350,17 @@ chips($('ctiers'),CTIERS,cs,'tier',()=>{csave();crender()});
 
 /* ---------- 증강 사전 ---------- */
 const GRADES=["전체","프리즘","골드","실버"];
-const ATIERS=["전체","S+","S","A","B","C·D"];
-const AORD={"S+":0,"S":1,"S-":2,"A+":3,"A":4,"A-":5,"B+":6,"B":7,"B-":8,"C":9,"D":10,"-":11};
+const ATIERS=["전체","신규","S+","S","A","B","C·D"];
+const AORD={"NEW":-1,"S+":0,"S":1,"S-":2,"A+":3,"A":4,"A-":5,"B+":6,"B":7,"B-":8,"C":9,"D":10,"-":11};
 AUG.forEach(a=>{a.key=norm(a.n);a.ck=cho(a.key);a.full=norm(a.n+a.e+a.f+a.d+a.c.join(''))});
 const as=load('aram-a',{grade:"전체",tier:"전체",sort:"tier"});as.q="";
 const asave=()=>store('aram-a',{grade:as.grade,tier:as.tier,sort:as.sort});
 function acard(a){
   const g=GCLS[a.g]||"s";
-  const tierTag=a.t==="-"?`<span class="flag">통계 목록 외</span>`:`<span class="tier ${tcls(a.t)}">${esc(a.t)}</span>`;
-  const soon=a.n==="탄환 세례"?` <span class="flag">26.21 삭제 예정</span>`:"";
+  const tierTag=a.t==="NEW"?`<span class="newtag">신규 · 통계 대기</span>`:a.t==="-"?`<span class="flag">통계 목록 외</span>`:`<span class="tier ${tcls(a.t)}">${esc(a.t)}</span>`;
   const pick=a.p?`<span class="pick">선택률 ${a.p.toFixed(2)}%</span>`:"";
   return `<article class="acard ${g}" id="aug-${a.i}">
-    <div class="top"><span class="aname">${esc(a.n)}</span><span class="grade ${g}">${esc(a.g)}</span>${tierTag}${soon}${pick}</div>
+    <div class="top"><span class="aname">${esc(a.n)}</span><span class="grade ${g}">${esc(a.g)}</span>${tierTag}${pick}</div>
     <p class="easy">${esc(a.e)}</p>
     <div class="arow"><span class="lab">이런 챔피언에게</span><span>${esc(a.f)}</span></div>
     <div class="arow"><span class="lab">많이 고르는 챔피언</span><div class="champs">${a.c.map(c=>`<span>${esc(c)}</span>`).join('')}</div></div>
@@ -347,7 +370,7 @@ function acard(a){
 }
 function arender(){
   const q=norm(as.q);
-  let r=AUG.filter(a=>(as.grade==="전체"||a.g===as.grade)&&(as.tier==="전체"||(as.tier==="C·D"?tierBase(a.t)==="C":tierBase(a.t)===as.tier))&&(!q||a.key.includes(q)||a.ck.includes(q)||a.full.includes(q)));
+  let r=AUG.filter(a=>(as.grade==="전체"||a.g===as.grade)&&(as.tier==="전체"||(as.tier==="신규"?a.t==="NEW":as.tier==="C·D"?tierBase(a.t)==="C":tierBase(a.t)===as.tier))&&(!q||a.key.includes(q)||a.ck.includes(q)||a.full.includes(q)));
   r.sort(as.sort==="name"?(x,y)=>x.n.localeCompare(y.n,'ko'):as.sort==="pick"?(x,y)=>y.p-x.p:(x,y)=>AORD[x.t]-AORD[y.t]||y.p-x.p);
   $('acount').textContent=`${r.length}개 표시 중`;
   $('alist').innerHTML=r.length?r.map(acard).join(''):`<div class="empty">"${esc(as.q)}"에 맞는 증강이 없습니다. 이름 일부, 초성, 또는 '보호막'·'쿨타임' 같은 효과 단어로 검색해 보세요.</div>`;
