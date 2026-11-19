@@ -8,7 +8,10 @@ lines=lambda f:[l.rstrip('\n') for l in open(p(f),encoding='utf-8') if l.strip()
 roles=dict(l.split('|') for l in lines('roles.txt'))
 removed=[dict(zip('ngvd',l.split('|'))) for l in lines('removed.txt')]
 REM={r['n'] for r in removed}
-sp=lambda x:[a.strip() for a in x.split(',') if a.strip() and a.strip() not in REM]
+COMMA=['마나 없음, 상관없음','으악, 내 동전!']  # 이름에 쉼표가 든 증강
+def sp(x):
+    for c in COMMA: x=x.replace(c,c.replace(', ','\x00'))
+    return [a.strip().replace('\x00',', ') for a in x.split(',') if a.strip() and a.strip().replace('\x00',', ') not in REM]
 warn=[]
 rows=[]
 for l in lines('data.txt'):
